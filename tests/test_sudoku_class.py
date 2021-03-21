@@ -75,3 +75,18 @@ class TestClassSudoku:
             x.check_matching(0, direction="head")
         with pytest.raises(ValueError):
             x.check_matching(110, direction="row")
+
+    def test_get_members(self):
+        x = Sudoku(self.start_board)
+
+        row = x.get_members(3, direction="row")
+        row_expect = [27, 28, 29, 30, 31, 32, 33, 34, 35]
+        assert row == row_expect
+
+        col = x.get_members(5, direction="col")
+        col_expect = [5, 14, 23, 32, 41, 50, 59, 68, 77]
+        assert col == col_expect
+
+        quadrant = x.get_members(5, direction="quadrant")
+        quadrant_expect = [33, 34, 35, 42, 43, 44, 51, 52, 53]
+        assert quadrant == quadrant_expect

@@ -92,5 +92,19 @@ class Sudoku:
             )
 
     def get_members(self, field_cnt: int, direction: str = "row") -> list:
-        pass
+        if direction == "row":
+            return [field_cnt * self.size + i for i in range(self.size)]
+        elif direction == "col":
+            return [field_cnt + i * self.size for i in range(self.size)]
+        elif direction == "quadrant":
+            row_cnt = field_cnt // self.field_size
+            col_cnt = field_cnt % self.field_size
+            start_pos = (
+                row_cnt * self.field_size * self.size + col_cnt * self.field_size
+            )
+            return [
+                i
+                for offset in range(0, self.field_size * self.size, self.size)
+                for i in range(start_pos + offset, start_pos + offset + self.field_size)
+            ]
 
