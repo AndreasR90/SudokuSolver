@@ -62,6 +62,13 @@ class TestClassSudoku:
         )
         assert x.pretty_print(highlight=[[1, 2]]) == expected_string
 
+    def test_index_and_position(self):
+        x = Sudoku(self.start_board)
+        assert x.get_position(0, 4) == 4
+        assert x.get_position(2, 4) == 22
+        assert x.get_indices(4) == (0, 4)
+        assert x.get_indices(22) == (2, 4)
+
     def test_check_matching(self):
         x = Sudoku(self.start_board)
         with pytest.raises(ValueError):
