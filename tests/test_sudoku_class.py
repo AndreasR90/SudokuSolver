@@ -69,13 +69,6 @@ class TestClassSudoku:
         assert x.get_indices(4) == (0, 4)
         assert x.get_indices(22) == (2, 4)
 
-    def test_check_matching(self):
-        x = Sudoku(self.start_board)
-        with pytest.raises(ValueError):
-            x.check_matching(0, direction="head")
-        with pytest.raises(ValueError):
-            x.check_matching(110, direction="row")
-
     def test_get_members(self):
         x = Sudoku(self.start_board)
 
@@ -90,3 +83,39 @@ class TestClassSudoku:
         quadrant = x.get_members(5, direction="quadrant")
         quadrant_expect = [33, 34, 35, 42, 43, 44, 51, 52, 53]
         assert quadrant == quadrant_expect
+
+        row = x.get_other_members(30, direction="row")
+        row_expect = [27, 28, 29, 31, 32, 33, 34, 35]
+        assert row == row_expect
+
+        col = x.get_other_members(23, direction="col")
+        col_expect = [5, 14, 32, 41, 50, 59, 68, 77]
+        assert col == col_expect
+
+        quadrant = x.get_other_members(44, direction="quadrant")
+        quadrant_expect = [33, 34, 35, 42, 43, 51, 52, 53]
+        assert quadrant == quadrant_expect
+
+    def test_possible_states(self):
+        x = Sudoku(self.start_board)
+
+        pos_states = x.check_possible_states(1)
+        pos_states_expected = [3, 4, 5]
+        assert pos_states == pos_states_expected
+
+        pos_states = x.check_possible_states(58)
+        pos_states_expected = [4, 7]
+        assert pos_states == pos_states_expected
+
+        pos_states = x.check_possible_states(0)
+        # this is fixed -> False
+        pos_states_expected = False
+        assert pos_states == pos_states_expected
+
+    def test_check_matching(self):
+        # TODO
+        x = Sudoku(self.start_board)
+        with pytest.raises(ValueError):
+            x.check_matching(0, direction="head")
+        with pytest.raises(ValueError):
+            x.check_matching(110, direction="row")

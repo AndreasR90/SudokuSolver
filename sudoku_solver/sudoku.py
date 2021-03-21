@@ -108,3 +108,32 @@ class Sudoku:
                 for i in range(start_pos + offset, start_pos + offset + self.field_size)
             ]
 
+    def get_other_members(self, pos: int, direction="row"):
+        idx_row, idx_col = self.get_indices(pos)
+        if direction == "row":
+            field_index = idx_row
+        if direction == "col":
+            field_index = idx_col
+        elif direction == "quadrant":
+            field_index = (
+                idx_row // self.field_size
+            ) * self.field_size + idx_col // self.field_size
+        all_members = self.get_members(field_cnt=field_index, direction=direction)
+        return [member for member in all_members if member != pos]
+
+    def check_possible_states(self, pos: int) -> list:
+        if self.current_board[pos] != 0:
+            return False
+        possible_states = [i for i in range(1, 1 + self.size)]
+        for direction in self._set_directions:
+            print(direction, possible_states)
+            other_members = self.get_other_members(pos, direction=direction)
+            for o_member in other_members:
+                val = self.current_board[o_member]
+                if val in possible_states:
+                    pos_idx = possible_states.index(self.current_board[o_member])
+                    del possible_states[pos_idx]
+
+        return possible_states
+        #  members = self.get_members()
+
