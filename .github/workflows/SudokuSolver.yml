@@ -41,3 +41,7 @@ jobs:
       - name: Build coverage file
         run: |
           pytest --cache-clear --cov=sudoku_solver tests/ > pytest-coverage.txt
+      - name: pytest-coverage-commentator
+        uses: coroo/pytest-coverage-commentator@v1.0.2
+        with:
+          pytest-coverage: pytest-coverage.txt
