@@ -39,7 +39,7 @@ class TestClassSudoku:
         with pytest.raises(ValueError):
             Sudoku(self.start_board8x8)
 
-        self.start_board8x8[0] = [1, 2, 3]
+        self.start_board8x8[1] = [1, 2, 3]
         with pytest.raises(ValueError):
             Sudoku(self.start_board8x8)
 
