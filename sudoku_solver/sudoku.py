@@ -36,15 +36,20 @@ class Sudoku:
         """
 
         self.size = len(board)
+        self.full_size = self.size ** 2
         self.field_size = int(np.sqrt(self.size))
         if self.field_size ** 2 != self.size:
             raise ValueError("Something is wrong with the input dimension")
         for row in board:
             if len(row) != self.size:
                 raise ValueError("Not all rows have the same length.")
-        #
+        # Make it 1d numpy
         self.initial_board = np.hstack(board)
         self.current_board = np.hstack(board)
+
+        # For tryout convenience we create a dictionary which holds the possible
+        # values
+        self.possible_vals = {}
 
     def get_indices(self, pos):
         idx_row = pos // self.size
@@ -81,6 +86,28 @@ class Sudoku:
         # 5. Do tryout
         logging.debug("")
 
+    def check_unique(
+        self, change: bool = True, break_after_change: bool = False,
+    ) -> list:
+        unique = []
+        self.fill_possible_vals()
+        for pos, possible_states in self.possible_vals.items():
+            if len(possible_states) == 1:
+                unique += [pos]
+                if change:
+                    self.current_board[pos] = possible_states[0]
+                    self.fill_possible_vals()
+                    if break_after_change:
+                        return [pos]
+        return unique
+
+    def fill_possible_vals(self):
+        for pos in range(self.full_size):
+            possible_states = self.check_possible_states(pos)
+            if not possible_states:
+                continue
+            self.possible_vals[pos] = possible_states
+
     def check_matching(self, field_cnt: int, direction: str = "row"):
         if direction not in self._set_directions:
             raise ValueError(
@@ -90,6 +117,7 @@ class Sudoku:
             raise ValueError(
                 "The field count has to be in [0," + str(self.size - 1) + "]"
             )
+        raise NotImplementedError
 
     def get_members(self, field_cnt: int, direction: str = "row") -> list:
         if direction == "row":
@@ -126,7 +154,6 @@ class Sudoku:
             return False
         possible_states = [i for i in range(1, 1 + self.size)]
         for direction in self._set_directions:
-            print(direction, possible_states)
             other_members = self.get_other_members(pos, direction=direction)
             for o_member in other_members:
                 val = self.current_board[o_member]
@@ -135,5 +162,4 @@ class Sudoku:
                     del possible_states[pos_idx]
 
         return possible_states
-        #  members = self.get_members()
 

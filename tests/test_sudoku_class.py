@@ -112,6 +112,74 @@ class TestClassSudoku:
         pos_states_expected = False
         assert pos_states == pos_states_expected
 
+    def test_check_unique(self):
+        x = Sudoku(self.start_board)
+
+        unique = x.check_unique(change=True, break_after_change=True)
+        unique_expected = [11]
+        possible_expected = {
+            1: [3, 4],
+            3: [3, 4, 7, 9],
+            4: [3, 4, 5, 7],
+            5: [3, 4, 7, 9],
+            6: [1, 3, 5, 9],
+            7: [1, 3, 9],
+            9: [1, 4],
+            10: [3, 4],
+            11: [5],
+            12: [2, 3, 4, 8, 9],
+            13: [3, 4],
+            14: [3, 4, 8, 9],
+            17: [4, 9],
+            22: [3, 4, 5],
+            25: [3],
+            26: [4, 5],
+            29: [2, 7, 8],
+            30: [4, 7, 8],
+            33: [7, 8, 9],
+            34: [9],
+            35: [7, 9],
+            36: [4, 5, 6],
+            37: [4, 5, 7],
+            38: [7, 8],
+            39: [3, 4, 7, 8],
+            42: [3, 5, 7, 8],
+            44: [5, 6, 7],
+            45: [5, 6],
+            47: [7, 8],
+            48: [3, 7, 8],
+            50: [3, 7, 8],
+            51: [1, 3, 5, 7, 8],
+            53: [5, 6, 7],
+            54: [5, 9],
+            55: [2, 5, 7],
+            58: [4, 7],
+            59: [4, 7, 9],
+            60: [7, 9],
+            66: [3, 7, 9],
+            68: [3, 7, 9],
+            69: [7, 9],
+            71: [2, 7, 9],
+            72: [9],
+            73: [7],
+        }
+        assert unique == unique_expected
+        assert x.possible_vals == possible_expected
+
+        x = Sudoku(self.start_board)
+
+        unique = x.check_unique(change=True, break_after_change=False)
+        unique_expected = [11, 25, 34, 35, 72, 73]
+        assert unique == unique_expected
+        assert x.possible_vals != {}
+
+        x = Sudoku(self.start_board)
+
+        unique = x.check_unique(change=False, break_after_change=False)
+        unique_expected = [11, 25, 34, 72, 73]
+        assert unique == unique_expected
+        np.testing.assert_array_equal(x.initial_board, x.current_board)
+
     def test_check_matching(self):
         # TODO
         x = Sudoku(self.start_board)
