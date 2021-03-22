@@ -111,6 +111,19 @@ class Sudoku:
 
         return positions, changed
 
+    def check_valid_board(self) -> bool:
+        for direction in self._set_directions:
+            for cnt in range(self.size):
+                members = self.get_members(cnt, direction=direction)
+                numbers = [
+                    self.current_board[mb]
+                    for mb in members
+                    if self.current_board[mb] != 0
+                ]
+                if len(numbers) != len(set(numbers)):
+                    return False
+        return True
+
     def check_field(
         self, direction="row", change: bool = True, single_step: bool = False
     ) -> list:

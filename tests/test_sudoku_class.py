@@ -198,6 +198,13 @@ class TestClassSudoku:
         expct = [9, 12, 14, 29, 51, 42, 33, 55, 54, 73, 72, 71]
         assert values == expct
 
+    def test_check_valid_board(self):
+        x = Sudoku(self.start_board)
+
+        assert x.check_valid_board()
+        x.current_board[:9] = np.array([1, 1, 0, 0, 0, 0, 0, 0, 0])
+        assert not x.check_valid_board()
+
     def test_check_matching(self):
         # TODO
         x = Sudoku(self.start_board)
