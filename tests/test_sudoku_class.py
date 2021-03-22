@@ -115,7 +115,7 @@ class TestClassSudoku:
     def test_check_unique(self):
         x = Sudoku(self.start_board)
 
-        unique = x.check_unique(change=True, break_after_change=True)
+        unique = x.check_unique(change=True, single_step=True)
         unique_expected = [11]
         possible_expected = {
             1: [3, 4],
@@ -168,17 +168,36 @@ class TestClassSudoku:
 
         x = Sudoku(self.start_board)
 
-        unique = x.check_unique(change=True, break_after_change=False)
+        unique = x.check_unique(change=True, single_step=False)
         unique_expected = [11, 25, 34, 35, 72, 73]
         assert unique == unique_expected
         assert x.possible_vals != {}
 
         x = Sudoku(self.start_board)
 
-        unique = x.check_unique(change=False, break_after_change=False)
+        unique = x.check_unique(change=False, single_step=False)
         unique_expected = [11, 25, 34, 72, 73]
         assert unique == unique_expected
         np.testing.assert_array_equal(x.initial_board, x.current_board)
+
+    def test_check_field(self):
+        x = Sudoku(self.start_board)
+
+        values = x.check_field(direction="row", change=True, single_step=False)
+        expct = [9, 12, 29, 30, 51, 55, 71, 73, 72]
+        assert values == expct
+
+        x = Sudoku(self.start_board)
+
+        values = x.check_field(direction="col", change=True, single_step=False)
+        expct = [9, 55, 29, 7, 71]
+        assert values == expct
+
+        x = Sudoku(self.start_board)
+
+        values = x.check_field(direction="quadrant", change=True, single_step=False)
+        expct = [9, 12, 29, 51, 55, 71]
+        assert values == expct
 
     def test_check_matching(self):
         # TODO
@@ -187,3 +206,4 @@ class TestClassSudoku:
             x.check_matching(0, direction="head")
         with pytest.raises(ValueError):
             x.check_matching(110, direction="row")
+

@@ -47,8 +47,6 @@ class Sudoku:
         self.initial_board = np.hstack(board)
         self.current_board = np.hstack(board)
 
-        # For tryout convenience we create a dictionary which holds the possible
-        # values
         self.possible_vals = {}
 
     def get_indices(self, pos):
@@ -78,17 +76,48 @@ class Sudoku:
             string += "\n"
         return string
 
-    def do_solve_step(self) -> bool:
+    def do_solve_step(self, change: bool = True, single_step: bool = False) -> bool:
         # 1. Look for unique possiblities
+        logging.debug("Look for unqiue possibilites")
+        positions = self.check_unique(change=change, single_step=single_step)
+        for direction in self._set_directions:
+            self.check_field(
+                direction=direction, change=change, single_step=single_step
+            )
         # 2. Go over rows
+
         # 3. Go over columns
         # 4. Go over quadrants
         # 5. Do tryout
         logging.debug("")
 
-    def check_unique(
-        self, change: bool = True, break_after_change: bool = False,
+    def check_field(
+        self, direction="row", change: bool = True, single_step: bool = False
     ) -> list:
+        pos = []
+        self.fill_possible_vals()
+        for cnt in range(self.size):
+            members = self.get_members(field_cnt=cnt, direction=direction)
+            unkown_members = [
+                member for member in members if self.current_board[member] == 0
+            ]
+            needed_vals = [
+                i
+                for i in range(1, 1 + self.size)
+                if i not in self.current_board[members]
+            ]
+            for i in needed_vals:
+                positions = [mb for mb in unkown_members if i in self.possible_vals[mb]]
+                if len(positions) == 1:
+                    pos += positions
+                    if change:
+                        self.current_board[pos] = i
+                        self.fill_possible_vals()
+                        if single_step:
+                            return [pos]
+        return pos
+
+    def check_unique(self, change: bool = True, single_step: bool = False,) -> list:
         unique = []
         self.fill_possible_vals()
         for pos, possible_states in self.possible_vals.items():
@@ -97,7 +126,7 @@ class Sudoku:
                 if change:
                     self.current_board[pos] = possible_states[0]
                     self.fill_possible_vals()
-                    if break_after_change:
+                    if single_step:
                         return [pos]
         return unique
 
