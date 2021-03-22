@@ -76,20 +76,40 @@ class Sudoku:
             string += "\n"
         return string
 
-    def do_solve_step(self, change: bool = True, single_step: bool = False) -> bool:
+    def solve(self) -> bool:
+        cnt = 1
+        while True:
+            positions, changed = self.do_solve_step(change=True, single_step=False)
+            if cnt % 100 == 0:
+                print(cnt, positions)
+                break
+            cnt += 1
+            if not changed:
+                print("REGULAR BREAK")
+                break
+
+    def do_solve_step(self, change: bool = True, single_step: bool = False) -> dict:
         # 1. Look for unique possiblities
         logging.debug("Look for unqiue possibilites")
-        positions = self.check_unique(change=change, single_step=single_step)
-        for direction in self._set_directions:
-            self.check_field(
-                direction=direction, change=change, single_step=single_step
-            )
+        changed = False
+        positions = {}
+        positions["cell"] = self.check_unique(change=change, single_step=single_step)
+        if len(positions["cell"]) != 0:
+            changed = True
         # 2. Go over rows
-
         # 3. Go over columns
         # 4. Go over quadrants
+        for direction in self._set_directions:
+
+            positions[direction] = self.check_field(
+                direction=direction, change=change, single_step=single_step
+            )
+            if len(positions[direction]) != 0:
+                changed = True
+        # 2. Go over rows
         # 5. Do tryout
-        logging.debug("")
+
+        return positions, changed
 
     def check_field(
         self, direction="row", change: bool = True, single_step: bool = False
@@ -107,11 +127,13 @@ class Sudoku:
                 if i not in self.current_board[members]
             ]
             for i in needed_vals:
-                positions = [mb for mb in unkown_members if i in self.possible_vals[mb]]
+                positions = [
+                    mb for mb in unkown_members if i in self.possible_vals.get(mb, [0])
+                ]
                 if len(positions) == 1:
                     pos += positions
                     if change:
-                        self.current_board[pos] = i
+                        self.current_board[positions] = i
                         self.fill_possible_vals()
                         if single_step:
                             return [pos]
@@ -120,22 +142,29 @@ class Sudoku:
     def check_unique(self, change: bool = True, single_step: bool = False,) -> list:
         unique = []
         self.fill_possible_vals()
-        for pos, possible_states in self.possible_vals.items():
+        for pos in range(self.full_size):
+            possible_states = self.possible_vals.get(pos, None)
+            if not possible_states:
+                continue
             if len(possible_states) == 1:
                 unique += [pos]
                 if change:
                     self.current_board[pos] = possible_states[0]
+                    print("chgd", self.current_board[pos], pos)
                     self.fill_possible_vals()
+                    print(self.check_possible_states(pos))
                     if single_step:
                         return [pos]
         return unique
 
     def fill_possible_vals(self):
+        self.possible_vals = {}
         for pos in range(self.full_size):
             possible_states = self.check_possible_states(pos)
             if not possible_states:
                 continue
             self.possible_vals[pos] = possible_states
+        return self.possible_vals
 
     def check_matching(self, field_cnt: int, direction: str = "row"):
         if direction not in self._set_directions:

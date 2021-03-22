@@ -126,7 +126,6 @@ class TestClassSudoku:
             7: [1, 3, 9],
             9: [1, 4],
             10: [3, 4],
-            11: [5],
             12: [2, 3, 4, 8, 9],
             13: [3, 4],
             14: [3, 4, 8, 9],
@@ -184,19 +183,19 @@ class TestClassSudoku:
         x = Sudoku(self.start_board)
 
         values = x.check_field(direction="row", change=True, single_step=False)
-        expct = [9, 12, 29, 30, 51, 55, 71, 73, 72]
+        expct = [9, 12, 14, 17, 29, 30, 33, 34, 51, 55, 54, 71, 73, 72]
         assert values == expct
 
         x = Sudoku(self.start_board)
 
         values = x.check_field(direction="col", change=True, single_step=False)
-        expct = [9, 55, 29, 7, 71]
+        expct = [9, 36, 45, 55, 29, 12, 7, 25, 34, 71, 44, 17]
         assert values == expct
 
         x = Sudoku(self.start_board)
 
         values = x.check_field(direction="quadrant", change=True, single_step=False)
-        expct = [9, 12, 29, 51, 55, 71]
+        expct = [9, 12, 14, 29, 51, 42, 33, 55, 54, 73, 72, 71]
         assert values == expct
 
     def test_check_matching(self):
