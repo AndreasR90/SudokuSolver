@@ -205,6 +205,11 @@ class TestClassSudoku:
         x.current_board[:9] = np.array([1, 1, 0, 0, 0, 0, 0, 0, 0])
         assert not x.check_valid_board()
 
+    def test_get_pos_with_smallest_pos(self):
+        x = Sudoku(self.start_board)
+
+        assert x.get_pos_with_smalles_possibilites() == 11
+
     def test_check_matching(self):
         # TODO
         x = Sudoku(self.start_board)

@@ -1,6 +1,7 @@
 import logging
 
 import numpy as np
+from numpy.core.numeric import full
 
 
 def highlight_string(text: str, style: str = "OKGREEN") -> str:
@@ -110,6 +111,15 @@ class Sudoku:
         # 5. Do tryout
 
         return positions, changed
+
+    def get_pos_with_smalles_possibilites(self) -> int:
+        self.fill_possible_vals()
+        return np.argmin(
+            [
+                len(self.possible_vals.get(pos, [None] * self.size))
+                for pos in range(self.full_size)
+            ]
+        )
 
     def check_valid_board(self) -> bool:
         for direction in self._set_directions:
