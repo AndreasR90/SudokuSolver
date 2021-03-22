@@ -1,7 +1,9 @@
 import logging
+from operator import pos
 
 import numpy as np
 from numpy.core.numeric import full
+from numpy.lib.histograms import histogram
 
 
 def highlight_string(text: str, style: str = "OKGREEN") -> str:
@@ -50,6 +52,8 @@ class Sudoku:
 
         self.possible_vals = {}
 
+        self.history = []
+
     def get_indices(self, pos):
         idx_row = pos // self.size
         idx_col = pos % self.size
@@ -78,16 +82,20 @@ class Sudoku:
         return string
 
     def solve(self) -> bool:
-        cnt = 1
+        changed = True
         while True:
+            old_changed = changed
             positions, changed = self.do_solve_step(change=True, single_step=False)
-            if cnt % 100 == 0:
-                print(cnt, positions)
+            # Check if done (N+1)*N/2 = N * \sum_{i=1}^N i
+            if self.check_finished():
                 break
-            cnt += 1
-            if not changed:
-                print("REGULAR BREAK")
+            elif not changed and not old_changed:
                 break
+
+    def check_finished(self):
+        if np.sum(self.current_board) == (self.size + 1) * self.size * self.size / 2:
+            return True
+        return False
 
     def do_solve_step(self, change: bool = True, single_step: bool = False) -> dict:
         # 1. Look for unique possiblities
@@ -107,10 +115,44 @@ class Sudoku:
             )
             if len(positions[direction]) != 0:
                 changed = True
-        # 2. Go over rows
-        # 5. Do tryout
+        # Check if correct if speculations
+        if len(self.history) != 0:
+            while not self.check_valid_board():
+                self.revert_and_do_next_tryout()
+                changed = True
+        if self.check_finished() and self.check_valid_board():
+            return positions, True
+        if not changed:
+            self.new_tryout()
+            changed = True
 
         return positions, changed
+
+    def revert_and_do_next_tryout(self):
+        latest_history = self.history[-1]
+        while True:
+            options = latest_history["options"]
+            idx_used = latest_history["idx_used"]
+            position = latest_history["position"]
+            if idx_used == len(options) - 1:
+                raise NotImplementedError(
+                    "No value for {position:} can be used?? Sudoku not solvable?!".format(
+                        position=position
+                    )
+                )
+            else:
+                idx_used += 1
+                self.current_board[position] = options[idx_used]
+                self.history[-1].update({"idx_used": idx_used})
+                break
+
+    def new_tryout(self):
+        start_pos = self.get_pos_with_smalles_possibilites()
+        possibilites = self.possible_vals.get(start_pos)
+        self.current_board[start_pos] = possibilites[0]
+        self.history.append(
+            {"options": possibilites, "idx_used": 0, "position": start_pos}
+        )
 
     def get_pos_with_smalles_possibilites(self) -> int:
         self.fill_possible_vals()
@@ -173,9 +215,7 @@ class Sudoku:
                 unique += [pos]
                 if change:
                     self.current_board[pos] = possible_states[0]
-                    print("chgd", self.current_board[pos], pos)
                     self.fill_possible_vals()
-                    print(self.check_possible_states(pos))
                     if single_step:
                         return [pos]
         return unique

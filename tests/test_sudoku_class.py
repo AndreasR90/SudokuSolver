@@ -15,6 +15,17 @@ class TestClassSudoku:
         [8, 6, 4, 0, 1, 0, 0, 5, 0],
         [0, 0, 3, 5, 8, 2, 4, 6, 1],
     ]
+    solution = [
+        [2, 3, 6, 7, 4, 9, 5, 1, 8],
+        [1, 4, 5, 2, 3, 8, 6, 7, 9],
+        [7, 8, 9, 1, 5, 6, 2, 3, 4],
+        [3, 1, 2, 4, 6, 5, 8, 9, 7],
+        [4, 5, 7, 8, 9, 1, 3, 2, 6],
+        [6, 9, 8, 3, 2, 7, 1, 4, 5],
+        [5, 2, 1, 6, 7, 4, 9, 8, 3],
+        [8, 6, 4, 9, 1, 3, 7, 5, 2],
+        [9, 7, 3, 5, 8, 2, 4, 6, 1],
+    ]
     start_board8x8 = [
         [2, 0, 6, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 6, 7],
@@ -210,11 +221,10 @@ class TestClassSudoku:
 
         assert x.get_pos_with_smalles_possibilites() == 11
 
-    def test_check_matching(self):
-        # TODO
+    def test_solve(self):
         x = Sudoku(self.start_board)
-        with pytest.raises(ValueError):
-            x.check_matching(0, direction="head")
-        with pytest.raises(ValueError):
-            x.check_matching(110, direction="row")
+
+        x.solve()
+
+        np.testing.assert_array_equal(x.current_board, np.hstack(self.solution))
 
